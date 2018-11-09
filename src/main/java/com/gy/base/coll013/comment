@@ -1,0 +1,33 @@
+线程安全的容器 Vector替代List， HashTable替换HashMap.
+
+立足于多线程，高并发的容器：
+concurrentHashMap 和CopyOnWrite容器
+
+ConcurrentSkipListMap
+
+ConcurrentHashMap 通过分段将锁粒度细化。segment设计使得整个容器分为n个小区域。每个小区域为一个锁单元，最高支持16个段
+CopyOnWriteArrayList 和CopyOnWriteArraySet.当我按一个容器进行写操作时，不是直接操作当前容器，现将当前容器进行拷贝，复制出
+一个和元容器一样的副本，在新的副本上进行操作，然后再切换容器指向。实现了读写分离的思想，主要用于读多写少的场景。写太多时，复制的
+负担过重，不适用。多个写不能并发，是加锁实现的
+
+
+Queue:
+高性能队列(非阻塞)： ConcurrentLinkQueue 基于链接节点的无界队列，不允许null元素  add和offer加入元素，这两个方法在该类中无区别。
+ pull和peak取出元素，前者删除元素，后者不会.
+阻塞队列：BlockingQueue
+
+ArrayBlockingQueue 基于数组的阻塞队列实现，没有实现读写分离，读写段不能完全同时进行，先进先出，有界队列
+
+LinkedBlockingQueue 基于链表实现的阻塞队列，内部由链表实现的存储，实现了读写分离（采用了读写分离的两个锁），无界队列
+
+SynchronousQueue 一种没有缓冲的队列，生产者生产的数据直接被消费者消费,这种队列只先进行take等待，再往里面加add元素，立即获得处理
+peek poll 不阻塞，没有元素返回空，add不允许直接添加元素，需要有take调用在先，否则抛出异常。offer放入无阻塞，没有take调用在先时不成功。
+put阻塞放入，没有take调用时，一直尝试添加。
+
+PriorityBlockingQueue 基于优先级的队列，无界队列，公平锁
+
+DelayQueue:带有延时的queue,元素要实现Delayed接口，用于时间排序和获取时间。适用于根据特定延时优先级进行元素获取。
+
+Dequeue 允许在队列的头部和尾部入队和出队
+    LinkedBlockingDequeue 一种Dequeue的实现，没有实现读写分离，其高并发性能低于其他的BlockingQueue，同时也低于
+    ConcurrentLinkedQueue 高并发的Deque实现
